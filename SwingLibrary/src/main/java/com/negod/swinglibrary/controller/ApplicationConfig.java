@@ -1,39 +1,31 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.negod.swinglibrary.controller;
 
 import com.negod.swinglibrary.controller.lookandfeel.LookAndFeelController;
-import com.negod.swinglibrary.controller.jframes.JFrameController;
 import com.negod.swinglibrary.controller.events.EventController;
-import com.negod.swinglibrary.controller.jframes.NegodJFrame;
+import com.negod.swinglibrary.controller.jframes.ViewController;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  *
- * @author Fam Johansson
+ * @author Joakikm Johansson (joakimjohansson@outlook.com)
+ * @param <Jframes>
  */
-public class ApplicationConfig<Jframes extends Enum<Jframes>> {
+public class ApplicationConfig {
 
-    private JFrameController<Jframes, NegodJFrame> viewController;
+    private ViewController viewController;
     private static LookAndFeelController lookAndFeelController;
-    private static EventController eventController;
-    Class<Jframes> jFrames;
+    private EventController eventController;
 
-    public ApplicationConfig(Class<Jframes> jFrames) {
-        this.jFrames = jFrames;
+    public ApplicationConfig(ViewController jFrameContr) {
+        this.viewController = jFrameContr;
+        this.eventController = new EventController();
         startup();
     }
 
     private void startup() {
 
         Logger.getLogger(ApplicationConfig.class.getName()).log(Level.INFO, "Starting Application");
-
-        Logger.getLogger(ApplicationConfig.class.getName()).log(Level.INFO, "Initiating JFrameController");
-        viewController = new JFrameController(jFrames);
-        Logger.getLogger(ApplicationConfig.class.getName()).log(Level.INFO, "JFrameController initiated");
 
         Logger.getLogger(ApplicationConfig.class.getName()).log(Level.INFO, "Initiating Look And Feel Controler");
         lookAndFeelController = new LookAndFeelController();
@@ -51,11 +43,11 @@ public class ApplicationConfig<Jframes extends Enum<Jframes>> {
         System.exit(0);
     }
 
-    public static LookAndFeelController getLookAndFeel() {
+    public LookAndFeelController getLookAndFeel() {
         return lookAndFeelController;
     }
 
-    public JFrameController getJFrames() {
+    public ViewController getJFrames() {
         return viewController;
     }
 

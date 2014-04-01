@@ -10,5 +10,5 @@ package com.negod.swinglibrary.controller.events;
  */
 public interface EventObserver extends EventRegistry {
 
-    public void update(EventType eventType, Object data);
+    public void update(NegodEvent event);
 }

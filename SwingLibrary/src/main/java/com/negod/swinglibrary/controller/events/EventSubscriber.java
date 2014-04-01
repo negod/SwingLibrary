@@ -4,6 +4,8 @@
  */
 package com.negod.swinglibrary.controller.events;
 
+import com.negod.genericlibrary.dto.Dto;
+
 /**
  *
  * @author Joakim
@@ -14,5 +16,5 @@ public interface EventSubscriber {
 
     public void removeObserver(EventObserver observer);
 
-    public void notifyObservers(EventType eventType, Object data);
+    public void notifyObservers(NegodEvent event);
 }

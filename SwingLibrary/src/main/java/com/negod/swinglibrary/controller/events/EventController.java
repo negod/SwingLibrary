@@ -4,8 +4,6 @@
  */
 package com.negod.swinglibrary.controller.events;
 
-
-
 /**
  *
  * @author Joakim
@@ -25,7 +23,7 @@ public class EventController implements EventSubscriber {
     }
 
     @Override
-    public void notifyObservers(EventType eventType, Object data) {
-        events.notifyObservers(eventType, data);
+    public void notifyObservers(NegodEvent event) {
+        events.notifyObservers(event);
     }
 }

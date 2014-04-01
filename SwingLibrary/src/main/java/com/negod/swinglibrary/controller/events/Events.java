@@ -4,6 +4,7 @@
  */
 package com.negod.swinglibrary.controller.events;
 
+import com.negod.genericlibrary.dto.Dto;
 import com.negod.swinglibrary.controller.ApplicationConfig;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,11 +43,12 @@ public class Events implements EventSubscriber {
             for (int i = 0; i < syncedList.size(); i++) {
                 if (syncedList.get(i).equals(observer)) {
                     syncedList.remove(i);
+                    Logger.getLogger(ApplicationConfig.class.getName()).log(Level.INFO, "Observer removed " + observer.getClass().getName());
                     break;
                 }
             }
         }
-        Logger.getLogger(ApplicationConfig.class.getName()).log(Level.INFO, "Observer removed " + observer.getClass().getName());
+
     }
 
     /**
@@ -57,11 +59,15 @@ public class Events implements EventSubscriber {
      * @param data
      */
     @Override
-    public void notifyObservers(EventType eventType, Object data) {
-        Logger.getLogger(ApplicationConfig.class.getName()).log(Level.INFO, "Notifying observers " + eventType.getClass().getName());
+    public void notifyObservers(NegodEvent event) {
+        Logger.getLogger(ApplicationConfig.class.getName()).log(Level.INFO, "Notifying observers " + event.getEvent().name());
         synchronized (syncedList) {
             for (int i = 0; i < syncedList.size(); i++) {
-                syncedList.get(i).update(eventType, data);
+                try {
+                    syncedList.get(i).update(event);
+                } catch (Exception e) {
+                    Logger.getLogger(ApplicationConfig.class.getName()).log(Level.WARNING, "Failed to notify: " + event.getEvent().name());
+                }
             }
         }
     }
