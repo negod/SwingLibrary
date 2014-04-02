@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Settings>
-  <ZipPath>C:\Projekt\inspection\Applikation\inspection-client\dist\HaV.zip</ZipPath>
-  <DomainPath>C:\Users\jojoha\GFServer3.1_2\glassfish\domains\domain1\docroot</DomainPath>
-  <UnZip>YES</UnZip>
-  <CompilePath>C:\Projekt\inspection\Applikation\inspection-client</CompilePath>
-  <Compile>YES</Compile>
-</Settings>
-

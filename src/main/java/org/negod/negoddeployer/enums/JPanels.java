@@ -9,5 +9,6 @@ package org.negod.negoddeployer.enums;
  * @author Joakim
  */
 public enum JPanels {
+
     CMD_PANEL,
 }

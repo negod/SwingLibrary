@@ -10,16 +10,5 @@ package org.negod.negoddeployer.enums;
  */
 public enum JFrames {
 
-    MainFrame("Supa dupa Inspection deployment Tool"),
-    ProgressBar("Mr Progress bar");
-    
-    String viewName;
-
-    JFrames(String jFrameName) {
-        this.viewName = jFrameName;
-    }
-
-    public String getJFrameTitle() {
-        return viewName;
-    }
+    MAINFRAME, PROGRESSBAR;
 }

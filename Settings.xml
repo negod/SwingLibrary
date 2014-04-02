@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+    <zip_path>C:\Users\Joakim\Desktop\test.zip</zip_path>
+    <deploy_path>C:\Temp</deploy_path>
+    <compile_path>C:\Program Files (x86)</compile_path>
+    <unzip>true</unzip>
+    <compile>true</compile>
+</settings>
+
