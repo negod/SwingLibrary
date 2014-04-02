@@ -6,7 +6,6 @@ package com.negod.swinglibrary.filehandler;
 
 import com.negod.genericlibrary.dto.Dto;
 import com.negod.swinglibrary.controller.Application;
-import com.negod.swinglibrary.controller.events.NegodEvent;
 import com.negod.swinglibrary.controller.events.global.ProgressBarEvent;
 import com.negod.swinglibrary.controller.events.global.ZipFileEvent;
 import com.negod.swinglibrary.progressbar.NegodProgressBar.NegodProgressBarData;
@@ -23,7 +22,7 @@ import java.util.zip.ZipInputStream;
  *
  * @author jojoha
  */
-public class FileUnZipper extends Thread {
+public class FileUnZipper {
 
     public enum FileUnzipData {
 
@@ -36,79 +35,72 @@ public class FileUnZipper extends Thread {
 
     private class ZipFileHandler extends Thread {
 
-        Dto<NegodProgressBarData> progressBarEvent = new Dto<NegodProgressBarData>(NegodProgressBarData.class);
-        Dto<FileUnzipData> settings;
+        Dto<NegodProgressBarData> progressBarData = new Dto<NegodProgressBarData>(NegodProgressBarData.class);
+        Dto<FileUnzipData> fileUnzipData;
+        int totalBytes;
 
-        public ZipFileHandler(Dto<FileUnzipData> settings) {
-            this.settings = settings;
+        public ZipFileHandler(Dto<FileUnzipData> fileUnzipData) {
+            this.fileUnzipData = fileUnzipData;
         }
 
         @Override
         public void run() {
-
-            progressBarEvent.set(NegodProgressBarData.PROGRESS_TEXT, "Unzipping file");
-            progressBarEvent.set(NegodProgressBarData.PROGRESS_VALUE, 0);
-
-            Application.getEvents().notifyObservers(new NegodEvent(ProgressBarEvent.CHANGE_PROGRESS, progressBarEvent));
 
             byte[] buffer = new byte[1024];
             int counter = 0;
 
             try {
 
-                File folder = new File(settings.<String>get(FileUnzipData.UNZIP_FILE_PATH));
+                File folder = new File(fileUnzipData.<String>get(FileUnzipData.UNZIP_FILE_PATH));
                 if (!folder.exists()) {
                     folder.mkdir();
                 }
 
-                ZipInputStream zis = new ZipInputStream(new FileInputStream(settings.<String>get(FileUnzipData.FILE_TO_UNZIP)));
-                ZipEntry ze = zis.getNextEntry();
+                FileInputStream stream = new FileInputStream(fileUnzipData.<String>get(FileUnzipData.FILE_TO_UNZIP));
+                ZipInputStream zis = new ZipInputStream(stream);
 
-                while (ze != null) {
+                ZipEntry ze;
+                totalBytes = stream.available();
+                int totalBytesRead = 0;
+                String fileName = "";
 
-                    String fileName = ze.getName();
-                    File newFile = new File(settings.<String>get(FileUnzipData.UNZIP_FILE_PATH) + File.separator + fileName);
+                notifySetMinMaxProgressValue(totalBytesRead, totalBytes);
+                notifyProgress("Unzipping file " + fileUnzipData.<String>get(FileUnzipData.FILE_TO_UNZIP), 0);
+                notifyUnzipProgress("Unzipping file " + fileUnzipData.<String>get(FileUnzipData.FILE_TO_UNZIP));
 
-                    settings.set(FileUnzipData.MESSAGE, "File unziping : " + newFile.getAbsoluteFile());
-                    progressBarEvent.set(NegodProgressBarData.PROGRESS_TEXT, settings.<String>get(FileUnzipData.MESSAGE));
+                while ((ze = zis.getNextEntry()) != null) {
 
-                    Application.getEvents().notifyObservers(new NegodEvent(ProgressBarEvent.CHANGE_PROGRESS, progressBarEvent));
-                    Application.getEvents().notifyObservers(new NegodEvent(ZipFileEvent.FILE_UNZIPPING_IN_PROGRESS, settings));
+                    try {
+                        totalBytesRead = totalBytes - stream.available();
+                        fileName = ze.getName();
+                        File newFile = new File(fileUnzipData.<String>get(FileUnzipData.UNZIP_FILE_PATH) + File.separator + fileName);
 
-                    new File(newFile.getParent()).mkdirs();
-                    FileOutputStream fos = new FileOutputStream(newFile);
+                        notifyProgress("File unzipping", totalBytesRead);
 
-                    int len;
-                    while ((len = zis.read(buffer)) > 0) {
-                        fos.write(buffer, 0, len);
-                        progressBarEvent.set(NegodProgressBarData.PROGRESS_VALUE, counter++);
-                        Application.getEvents().notifyObservers(new NegodEvent(ProgressBarEvent.CHANGE_PROGRESS, progressBarEvent));
+                        new File(newFile.getParent()).mkdirs();
+                        FileOutputStream fos = new FileOutputStream(newFile);
+
+                        int len;
+                        while ((len = zis.read(buffer)) > 0) {
+                            fos.write(buffer, 0, len);
+                        }
+
+                        fos.close();
+                        ze = zis.getNextEntry();
+                        notifyUnzipSuccess("Unzip Successfull: " + fileName);
+                    } catch (Exception e) {
+                        notifyUnzipfailure("Unzip Failed: " + fileName);
+                        notifyProgress("Unzip Failed: " + fileName, totalBytes);
                     }
-
-                    fos.close();
-                    ze = zis.getNextEntry();
                 }
 
+                notifyProgress("Unzip Successfull", totalBytes);
                 zis.closeEntry();
                 zis.close();
 
-                progressBarEvent.set(NegodProgressBarData.PROGRESS_VALUE, 100);
-                Application.getEvents().notifyObservers(new NegodEvent(ProgressBarEvent.CHANGE_PROGRESS, progressBarEvent));
-
-                settings.set(FileUnzipData.MESSAGE, "File Successfully unzipped ");
-                Application.getEvents().notifyObservers(new NegodEvent(ZipFileEvent.FILE_UNZIPPED_SUCCESS, settings));
-                this.join();
             } catch (IOException ex) {
-                progressBarEvent.set(NegodProgressBarData.PROGRESS_TEXT, "Failed to UNZIP file");
-                progressBarEvent.set(NegodProgressBarData.PROGRESS_VALUE, 100);
-                Application.getEvents().notifyObservers(new NegodEvent(ZipFileEvent.FILE_UNZIPPED_FAILURE, settings));
-                Application.getEvents().notifyObservers(new NegodEvent(ProgressBarEvent.CHANGE_PROGRESS, progressBarEvent));
-            } catch (InterruptedException ex) {
-                progressBarEvent.set(NegodProgressBarData.PROGRESS_TEXT, "Failed to UNZIP file");
-                progressBarEvent.set(NegodProgressBarData.PROGRESS_VALUE, 100);
-                Application.getEvents().notifyObservers(new NegodEvent(ZipFileEvent.FILE_UNZIPPED_FAILURE, settings));
-                Application.getEvents().notifyObservers(new NegodEvent(ProgressBarEvent.CHANGE_PROGRESS, progressBarEvent));
-                Logger.getLogger(FileUnZipper.class.getName()).log(Level.SEVERE, null, ex);
+                notifyUnzipfailure("Unzip Failed");
+                notifyProgress("Unzip Failed", totalBytes);
             } finally {
                 try {
                     this.join();
@@ -116,6 +108,33 @@ public class FileUnZipper extends Thread {
                     Logger.getLogger(FileUnZipper.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+        }
+
+        private void notifySetMinMaxProgressValue(int min, int max) {
+            progressBarData.set(NegodProgressBarData.MIN_VALUE, min);
+            progressBarData.set(NegodProgressBarData.MAX_VALUE, max);
+            Application.getEvents().notifyObservers(ProgressBarEvent.SET_MIN_MAX_VALUES, progressBarData);
+        }
+
+        private void notifyProgress(String message, int progressValue) {
+            progressBarData.set(NegodProgressBarData.PROGRESS_TEXT, message);
+            progressBarData.set(NegodProgressBarData.PROGRESS_VALUE, progressValue);
+            Application.getEvents().notifyObservers(ProgressBarEvent.CHANGE_PROGRESS, progressBarData);
+        }
+
+        private void notifyUnzipSuccess(String message) {
+            fileUnzipData.set(FileUnzipData.MESSAGE, message);
+            Application.getEvents().notifyObservers(ZipFileEvent.FILE_UNZIPPED_SUCCESS, fileUnzipData);
+        }
+
+        private void notifyUnzipfailure(String message) {
+            fileUnzipData.set(FileUnzipData.MESSAGE, message);
+            Application.getEvents().notifyObservers(ZipFileEvent.FILE_UNZIPPED_FAILURE, fileUnzipData);
+        }
+
+        private void notifyUnzipProgress(String message) {
+            fileUnzipData.set(FileUnzipData.MESSAGE, message);
+            Application.getEvents().notifyObservers(ZipFileEvent.FILE_UNZIPPING_IN_PROGRESS, fileUnzipData);
         }
     }
 }

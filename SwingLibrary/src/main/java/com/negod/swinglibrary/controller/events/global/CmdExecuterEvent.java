@@ -10,5 +10,5 @@ package com.negod.swinglibrary.controller.events.global;
  */
 public enum CmdExecuterEvent {
 
-    CMD_COMMAND_EXECUTED_SUCCESS, CMD_COMMAND_EXECUTED_FAILED, ;
+    CMD_COMMAND_EXECUTED_SUCCESS, CMD_COMMAND_EXECUTED_FAILED, NEW_LINE;
 }

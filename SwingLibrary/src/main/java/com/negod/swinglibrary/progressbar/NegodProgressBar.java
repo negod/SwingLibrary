@@ -8,7 +8,10 @@ import com.negod.genericlibrary.dto.Dto;
 import com.negod.swinglibrary.controller.Application;
 import com.negod.swinglibrary.controller.events.EventObserver;
 import com.negod.swinglibrary.controller.events.NegodEvent;
+import com.negod.swinglibrary.controller.events.global.CmdExecuterEvent;
 import com.negod.swinglibrary.controller.events.global.ProgressBarEvent;
+import com.negod.swinglibrary.controller.events.global.ZipFileEvent;
+import com.negod.swinglibrary.filehandler.FileUnZipper;
 
 /**
  *
@@ -38,8 +41,8 @@ public class NegodProgressBar extends javax.swing.JPanel implements EventObserve
         jProgressBar1.setValue(value.<Integer>get(NegodProgressBarData.PROGRESS_VALUE));
     }
 
-    public void setText(Dto<NegodProgressBarData> value) {
-        jLabel1.setText(value.<String>get(NegodProgressBarData.PROGRESS_TEXT));
+    public void setText(String data) {
+        jLabel1.setText(data);
     }
 
     public void setMinValue(Dto<NegodProgressBarData> value) {
@@ -93,11 +96,18 @@ public class NegodProgressBar extends javax.swing.JPanel implements EventObserve
         if (event.equalsEvent(ProgressBarEvent.CHANGE_PROGRESS)) {
             Dto<NegodProgressBarData> dto = event.getValues();
             setProgress(dto);
-            setText(dto);
+            setText(dto.<String>get(NegodProgressBarData.PROGRESS_TEXT));
         } else if (event.equalsEvent(ProgressBarEvent.SET_MIN_MAX_VALUES)) {
             Dto<NegodProgressBarData> dto = event.getValues();
             setMinValue(dto);
             setMaxValue(dto);
+        } else if (event.equalsEvent(CmdExecuterEvent.CMD_COMMAND_EXECUTED_SUCCESS)) {
+            Dto<NegodProgressBarData> dto = event.getValues();
+            setMinValue(dto);
+            setMaxValue(dto);
+        } else if (event.equalsEvent(ZipFileEvent.FILE_UNZIPPING_IN_PROGRESS)) {
+            Dto<FileUnZipper.FileUnzipData> dto = event.getValues();
+            setText(dto.<String>get(FileUnZipper.FileUnzipData.MESSAGE));
         }
     }
 }

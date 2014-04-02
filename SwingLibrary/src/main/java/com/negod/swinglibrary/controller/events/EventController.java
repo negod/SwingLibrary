@@ -4,6 +4,8 @@
  */
 package com.negod.swinglibrary.controller.events;
 
+import com.negod.genericlibrary.dto.Dto;
+
 /**
  *
  * @author Joakim
@@ -23,7 +25,7 @@ public class EventController implements EventSubscriber {
     }
 
     @Override
-    public void notifyObservers(NegodEvent event) {
-        events.notifyObservers(event);
+    public void notifyObservers(Enum event, Dto data) {
+        events.notifyObservers(event, data);
     }
 }

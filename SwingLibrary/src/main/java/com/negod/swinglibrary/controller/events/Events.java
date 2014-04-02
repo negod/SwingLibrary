@@ -59,14 +59,14 @@ public class Events implements EventSubscriber {
      * @param data
      */
     @Override
-    public void notifyObservers(NegodEvent event) {
-        Logger.getLogger(ApplicationConfig.class.getName()).log(Level.INFO, "Notifying observers " + event.getEvent().name());
+    public void notifyObservers(Enum event, Dto data) {
+        Logger.getLogger(ApplicationConfig.class.getName()).log(Level.INFO, "Notifying observers " + event.name());
         synchronized (syncedList) {
             for (int i = 0; i < syncedList.size(); i++) {
                 try {
-                    syncedList.get(i).update(event);
+                    syncedList.get(i).update(new NegodEvent(event, data));
                 } catch (Exception e) {
-                    Logger.getLogger(ApplicationConfig.class.getName()).log(Level.WARNING, "Failed to notify: " + event.getEvent().name());
+                    Logger.getLogger(ApplicationConfig.class.getName()).log(Level.WARNING, "Failed to notify: " + event.name());
                 }
             }
         }

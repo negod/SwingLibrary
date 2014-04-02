@@ -16,5 +16,5 @@ public interface EventSubscriber {
 
     public void removeObserver(EventObserver observer);
 
-    public void notifyObservers(NegodEvent event);
+    public void notifyObservers(Enum event, Dto data);
 }
